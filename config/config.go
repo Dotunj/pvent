@@ -18,6 +18,7 @@ type Config struct {
 	Target string       `json:"target"`
 	Sqs    SqsConfig    `json:"sqs"`
 	Google GoogleConfig `json:"google"`
+	Kafka  KafkaConfig  `json:"kafka"`
 }
 
 type SqsConfig struct {
@@ -30,6 +31,20 @@ type SqsConfig struct {
 type GoogleConfig struct {
 	ProjectID string `json:"project_id" env:"GOOGLE_PROJECT_ID"`
 	TopicName string `json:"topic_name" env:"GOOGLE_TOPIC_NAME"`
+}
+
+type KafkaConfig struct {
+	Address string     `json:"address" env:"KAFKA_ADDRESS"`
+	Topic   string     `json:"topic" env:"KAFKA_TOPIC"`
+	Auth    *KafkaAuth `json:"auth"`
+}
+
+type KafkaAuth struct {
+	Type     string `json:"type" env:"KAFKA_AUTH_TYPE"`
+	Hash     string `json:"hash" env:"KAFKA_AUTH_HASH"`
+	TLS      bool   `json:"tls" env:"KAFKA_AUTH_TLS"`
+	Username string `json:"username" env:"KAFKA_AUTH_USERNAME"`
+	Password string `json:"password" env:"KAFKA_AUTH_PASSWORD"`
 }
 
 func Load(path string) (Config, error) {
@@ -99,6 +114,78 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 
 	if !IsStringEmpty(region) {
 		cfg.Sqs.Region = region
+	}
+
+	projectID, err := cmd.Flags().GetString("project-id")
+	if err != nil {
+		return err
+	}
+
+	if !IsStringEmpty(projectID) {
+		cfg.Google.ProjectID = projectID
+	}
+
+	gtopic, err := cmd.Flags().GetString("gtopic")
+	if err != nil {
+		return err
+	}
+
+	if !IsStringEmpty(gtopic) {
+		cfg.Google.TopicName = gtopic
+	}
+
+	ktopic, err := cmd.Flags().GetString("ktopic")
+	if err != nil {
+		return err
+	}
+
+	if !IsStringEmpty(ktopic) {
+		cfg.Kafka.Topic = ktopic
+	}
+
+	address, err := cmd.Flags().GetString("address")
+	if err != nil {
+		return err
+	}
+
+	if !IsStringEmpty(address) {
+		cfg.Kafka.Address = address
+	}
+
+	authType, err := cmd.Flags().GetString("auth")
+	if err != nil {
+		return err
+	}
+
+	if !IsStringEmpty(authType) {
+		cfg.Kafka.Auth.Type = authType
+	}
+
+	hash, err := cmd.Flags().GetString("hash")
+	if err != nil {
+		return err
+	}
+
+	if !IsStringEmpty(hash) {
+		cfg.Kafka.Auth.Hash = hash
+	}
+
+	username, err := cmd.Flags().GetString("username")
+	if err != nil {
+		return err
+	}
+
+	if !IsStringEmpty(username) {
+		cfg.Kafka.Auth.Username = username
+	}
+
+	password, err := cmd.Flags().GetString("password")
+	if err != nil {
+		return err
+	}
+
+	if !IsStringEmpty(password) {
+		cfg.Kafka.Auth.Password = password
 	}
 
 	rate, err := cmd.Flags().GetInt("rate")
