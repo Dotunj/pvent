@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	cfg                                                                     config.Config
+	cfg                                                                     *config.Config
 	pType, cfgPath, accessKeyID, secretAccessKey, queueName, region, target string
 	projectID, gtopic, ktopic, address, authType, hash, username, password  string
 	rate                                                                    int

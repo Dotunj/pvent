@@ -47,7 +47,7 @@ type KafkaAuth struct {
 	Password string `json:"password" env:"KAFKA_AUTH_PASSWORD"`
 }
 
-func Load(path string) (Config, error) {
+func Load(path string) (*Config, error) {
 	_, err := os.Stat(path)
 
 	// config file does not exist
@@ -56,18 +56,18 @@ func Load(path string) (Config, error) {
 		fmt.Println(">>> Reading from Environment variables >>>>")
 		err := cleanenv.ReadEnv(&cfg)
 		if err != nil {
-			return cfg, err
+			return &cfg, err
 		}
 	} else {
 		// reading from config file
 		fmt.Println(">>> Reading from Config file >>>>")
 		err := cleanenv.ReadConfig(path, &cfg)
 		if err != nil {
-			return cfg, err
+			return &cfg, err
 		}
 	}
 
-	return cfg, err
+	return &cfg, err
 }
 
 func (c *Config) BindFlags(cmd *cobra.Command) error {

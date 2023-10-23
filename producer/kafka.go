@@ -8,6 +8,7 @@ import (
 	"github.com/segmentio/kafka-go/sasl"
 	"github.com/segmentio/kafka-go/sasl/plain"
 	"github.com/segmentio/kafka-go/sasl/scram"
+	"log"
 	"strconv"
 	"sync"
 	"time"
@@ -112,13 +113,34 @@ func getTransport(auth *KafkaAuth) (*kafka.Transport, error) {
 }
 
 func (k *KafkaProducer) Broadcast() error {
-	k.wg.Add(k.rate)
-
-	for i := 1; i <= k.rate; i++ {
-		go k.dispatch(i)
+	//before we broadcast, establish a connection to the cluster
+	if err := k.dial(); err != nil {
+		return err
 	}
 
-	k.wg.Wait()
+	for i := 1; i <= k.rate; i++ {
+		err := k.dispatch(i)
+		if err != nil {
+			fmt.Println("err with dispatching events:", err)
+		}
+	}
+
+	// close the writer
+	if err := k.writer.Close(); err != nil {
+		log.Fatal("failed to close kafka writer:", err)
+	}
+
+	return nil
+}
+
+func (k *KafkaProducer) dial() error {
+	//fetch the address of the cluster
+	addr := k.writer.Addr.String()
+
+	_, err := kafka.Dial("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("unable to connect to cluster: %v", err)
+	}
 
 	return nil
 }
@@ -126,8 +148,6 @@ func (k *KafkaProducer) Broadcast() error {
 func (k *KafkaProducer) dispatch(i int) error {
 	ctx, cancel := context.WithTimeout(k.ctx, 10*time.Second)
 	defer cancel()
-
-	defer k.wg.Done()
 
 	err := k.writer.WriteMessages(ctx, kafka.Message{
 		Key:   []byte(strconv.Itoa(i)),
