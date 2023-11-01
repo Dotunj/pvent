@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/dotunj/pvent/util"
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl"
 	"github.com/segmentio/kafka-go/sasl/plain"
@@ -11,19 +12,22 @@ import (
 	"log"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
 type KafkaProducer struct {
-	rate      int
-	address   []string
-	topic     string
-	partition int
-	writer    *kafka.Writer
-	wg        *sync.WaitGroup
-	payload   []byte
-	auth      *KafkaAuth
-	ctx       context.Context
+	rate         int
+	address      []string
+	topic        string
+	partition    int
+	writer       *kafka.Writer
+	wg           *sync.WaitGroup
+	payload      []byte
+	auth         *KafkaAuth
+	ctx          context.Context
+	errorCount   uint64
+	successCount uint64
 }
 
 type KafkaConfig struct {
@@ -118,19 +122,20 @@ func (k *KafkaProducer) Broadcast() error {
 		return err
 	}
 
+	fmt.Println(">>> Publishing Message via Kafka >>>")
+	k.wg.Add(k.rate)
 	for i := 1; i <= k.rate; i++ {
-		err := k.dispatch(i)
-		if err != nil {
-			fmt.Println("err with dispatching events:", err)
-		}
+		go k.dispatch(i)
 	}
+
+	k.wg.Wait()
 
 	// close the writer
 	if err := k.writer.Close(); err != nil {
 		log.Fatal("failed to close kafka writer:", err)
 	}
 
-	return nil
+	return util.PublishReport(k.rate, k.successCount, k.errorCount)
 }
 
 func (k *KafkaProducer) dial() error {
@@ -148,6 +153,8 @@ func (k *KafkaProducer) dial() error {
 func (k *KafkaProducer) dispatch(i int) error {
 	ctx, cancel := context.WithTimeout(k.ctx, 10*time.Second)
 	defer cancel()
+	defer k.wg.Done()
+	defer k.handleError()
 
 	err := k.writer.WriteMessages(ctx, kafka.Message{
 		Key:   []byte(strconv.Itoa(i)),
@@ -155,8 +162,17 @@ func (k *KafkaProducer) dispatch(i int) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("unable to publish message - %v", err)
+		fmt.Printf("failed to publish message: %v", err)
+		atomic.AddUint64(&k.errorCount, 1)
+		return nil
 	}
 
+	atomic.AddUint64(&k.successCount, 1)
 	return nil
+}
+
+func (k *KafkaProducer) handleError() {
+	if err := recover(); err != nil {
+		fmt.Printf("error with kafka client: %v", err)
+	}
 }
