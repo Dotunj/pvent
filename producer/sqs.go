@@ -6,16 +6,20 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/dotunj/pvent/util"
 	"github.com/google/uuid"
 	"sync"
+	"sync/atomic"
 )
 
 type SqsProducer struct {
-	rate     int
-	svc      *sqs.SQS
-	queueURL *string
-	wg       *sync.WaitGroup
-	payload  []byte
+	rate         int
+	svc          *sqs.SQS
+	queueURL     *string
+	wg           *sync.WaitGroup
+	payload      []byte
+	errorCount   uint64
+	successCount uint64
 }
 
 type SqsConfig struct {
@@ -61,15 +65,15 @@ func NewSqsProducer(cfg *SqsConfig) (Producer, error) {
 }
 
 func (s *SqsProducer) Broadcast() error {
-	s.wg.Add(s.rate)
+	fmt.Println(">>> Publishing Message via SQS >>>")
 
+	s.wg.Add(s.rate)
 	for i := 1; i <= s.rate; i++ {
 		go s.dispatch()
 	}
 
 	s.wg.Wait()
-
-	return nil
+	return util.PublishReport(s.rate, s.successCount, s.errorCount)
 }
 
 func (s *SqsProducer) dispatch() error {
@@ -81,11 +85,20 @@ func (s *SqsProducer) dispatch() error {
 	})
 
 	defer s.wg.Done()
+	defer s.handleError()
 
 	if err != nil {
-		return err
+		fmt.Printf("failed to publish message: %v", err)
+		atomic.AddUint64(&s.errorCount, 1)
+		return nil
 	}
 
-	fmt.Println("Message sent successfully")
+	atomic.AddUint64(&s.successCount, 1)
 	return nil
+}
+
+func (s *SqsProducer) handleError() {
+	if err := recover(); err != nil {
+		fmt.Printf("error with sqs client: %v", err)
+	}
 }
