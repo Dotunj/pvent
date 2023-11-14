@@ -2,10 +2,10 @@ package config
 
 import (
 	"fmt"
+	"github.com/dotunj/pvent/util"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/spf13/cobra"
 	"os"
-	"strings"
 )
 
 var (
@@ -50,21 +50,20 @@ type KafkaAuth struct {
 func Load(path string) (*Config, error) {
 	_, err := os.Stat(path)
 
-	// config file does not exist
-	// read from env instead
 	if err != nil {
-		fmt.Println(">>> Reading from Environment variables >>>>")
+		// config file does not exist, read from environment variables
+		fmt.Println(">>> READING CONFIG FROM ENV VARIABLES >>>")
 		err := cleanenv.ReadEnv(&cfg)
 		if err != nil {
 			return &cfg, err
 		}
-	} else {
-		// reading from config file
-		fmt.Println(">>> Reading from Config file >>>>")
-		err := cleanenv.ReadConfig(path, &cfg)
-		if err != nil {
-			return &cfg, err
-		}
+
+		return &cfg, err
+	}
+
+	err = cleanenv.ReadConfig(path, &cfg)
+	if err != nil {
+		return &cfg, err
 	}
 
 	return &cfg, err
@@ -76,7 +75,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(ptype) {
+	if !util.IsStringEmpty(ptype) {
 		cfg.Type = ptype
 	}
 
@@ -85,7 +84,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(accessKeyID) {
+	if !util.IsStringEmpty(accessKeyID) {
 		cfg.Sqs.AccessKeyID = accessKeyID
 	}
 
@@ -94,7 +93,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(secretAccessKey) {
+	if !util.IsStringEmpty(secretAccessKey) {
 		cfg.Sqs.SecretAccessKey = secretAccessKey
 	}
 
@@ -103,7 +102,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(queueName) {
+	if !util.IsStringEmpty(queueName) {
 		cfg.Sqs.QueueName = queueName
 	}
 
@@ -112,7 +111,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(region) {
+	if !util.IsStringEmpty(region) {
 		cfg.Sqs.Region = region
 	}
 
@@ -121,7 +120,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(projectID) {
+	if !util.IsStringEmpty(projectID) {
 		cfg.Google.ProjectID = projectID
 	}
 
@@ -130,7 +129,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(gtopic) {
+	if !util.IsStringEmpty(gtopic) {
 		cfg.Google.TopicName = gtopic
 	}
 
@@ -139,7 +138,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(ktopic) {
+	if !util.IsStringEmpty(ktopic) {
 		cfg.Kafka.Topic = ktopic
 	}
 
@@ -148,7 +147,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(address) {
+	if !util.IsStringEmpty(address) {
 		cfg.Kafka.Address = address
 	}
 
@@ -157,7 +156,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(authType) {
+	if !util.IsStringEmpty(authType) {
 		cfg.Kafka.Auth.Type = authType
 	}
 
@@ -166,7 +165,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(hash) {
+	if !util.IsStringEmpty(hash) {
 		cfg.Kafka.Auth.Hash = hash
 	}
 
@@ -175,7 +174,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(username) {
+	if !util.IsStringEmpty(username) {
 		cfg.Kafka.Auth.Username = username
 	}
 
@@ -184,7 +183,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(password) {
+	if !util.IsStringEmpty(password) {
 		cfg.Kafka.Auth.Password = password
 	}
 
@@ -202,11 +201,9 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		return err
 	}
 
-	if !IsStringEmpty(target) {
+	if !util.IsStringEmpty(target) {
 		cfg.Target = target
 	}
 
 	return nil
 }
-
-func IsStringEmpty(s string) bool { return len(strings.TrimSpace(s)) == 0 }
