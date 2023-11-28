@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+        name: Checkout Repo
+        with: 
+          fetch-depth: 0
+          
       - uses: actions/setup-go@v2
         name: Setup Go
         with:
