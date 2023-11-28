@@ -3,6 +3,15 @@
 Pvent is a CLI tool for sending events across different message brokers. At the moment, only Google Pub/Sub,
 Kafka and Amazon SQS are supported.
 
+### Installation
+To install Pvent using homebrew, you can run the following commands:
+
+```bash
+brew tap dotunj/tools
+brew install dotunj/tools/pvent
+```
+You can also check the [releases section](https://github.com/Dotunj/pvent/releases) to download the binary for your OS.
+
 ### Getting Started
 
 To get started with using Pvent, you need to provide your message brokers credentials in a config file or via the CLI directly. Refer [here](https://github.com/Dotunj/pvent#cli-usage-manual) for the CLI usage manual and the 
