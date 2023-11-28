@@ -16,12 +16,6 @@ builds:
       - darwin
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
 
 # Check https://goreleaser.com/customization/homebrew/
 brews:
@@ -31,7 +25,7 @@ brews:
     commit_author:
       name: dotunj
       email: dotunjolaosho@gmail.com
-    tap:
+    repository:
       owner: dotunj
       name: homebrew-tools
 checksum:
