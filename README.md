@@ -1,6 +1,6 @@
 ##  Pvent
 
-Pvent is a CLI tool for sending events across different message brokers during the development/testing phase. At the moment, only Google Pub/Sub,
+Pvent is a CLI tool for sending events across different message brokers. At the moment, only Google Pub/Sub,
 Kafka and Amazon SQS are supported.
 
 ### Getting Started
