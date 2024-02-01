@@ -24,7 +24,6 @@ type GoogleProducer struct {
 type GoogleConfig struct {
 	ProjectID string
 	TopicName string
-	Target    string
 	Rate      int
 	Payload   []byte
 }

@@ -13,12 +13,13 @@ var (
 )
 
 type Config struct {
-	Type   string       `json:"type"`
-	Rate   int          `json:"rate"`
-	Target string       `json:"target"`
-	Sqs    SqsConfig    `json:"sqs"`
-	Google GoogleConfig `json:"google"`
-	Kafka  KafkaConfig  `json:"kafka"`
+	Type     string         `json:"type"`
+	Rate     int            `json:"rate"`
+	Target   string         `json:"target"`
+	Sqs      SqsConfig      `json:"sqs"`
+	Google   GoogleConfig   `json:"google"`
+	Kafka    KafkaConfig    `json:"kafka"`
+	RabbitMq RabbitMqConfig `json:"rabbitmq"`
 }
 
 type SqsConfig struct {
@@ -45,6 +46,12 @@ type KafkaAuth struct {
 	TLS      bool   `json:"tls" env:"KAFKA_AUTH_TLS"`
 	Username string `json:"username" env:"KAFKA_AUTH_USERNAME"`
 	Password string `json:"password" env:"KAFKA_AUTH_PASSWORD"`
+}
+
+type RabbitMqConfig struct {
+	Dsn          string `json:"dsn" env:"RABBITMQ_DSN"`
+	QueueName    string `json:"queue_name" env:"RABBITMQ_QUEUE_NAME"`
+	ExchangeName string `json:"exchange_name" env:"RABBITMQ_EXCHANGE_NAME"`
 }
 
 func Load(path string) (*Config, error) {
@@ -115,6 +122,7 @@ func (c *Config) BindFlags(cmd *cobra.Command) error {
 		cfg.Sqs.Region = region
 	}
 
+	//pub-sub
 	projectID, err := cmd.Flags().GetString("project-id")
 	if err != nil {
 		return err

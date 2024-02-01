@@ -12,5 +12,6 @@ var (
 )
 
 func init() {
+	rootCmd.AddCommand(dispatcherCmd)
 	rootCmd.AddCommand(versionCmd)
 }

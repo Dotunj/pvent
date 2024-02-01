@@ -13,6 +13,7 @@ var (
 	cfg                                                                     *config.Config
 	pType, cfgPath, accessKeyID, secretAccessKey, queueName, region, target string
 	projectID, gtopic, ktopic, address, authType, hash, username, password  string
+	dsn, exchange, queue                                                    string
 	rate                                                                    int
 )
 
@@ -93,6 +94,10 @@ var dispatcherCmd = &cobra.Command{
 				Rate:    cfg.Rate,
 				Auth:    auth,
 			})
+
+			if err != nil {
+				return err
+			}
 		}
 
 		if dispatcher == nil {
@@ -120,6 +125,4 @@ func init() {
 	dispatcherCmd.Flags().StringVar(&password, "password", "", "Kafka Auth Password")
 	dispatcherCmd.Flags().IntVar(&rate, "rate", 1, "Number of events to send")
 	dispatcherCmd.Flags().StringVar(&target, "target", "", "Path to JSON payload to dispatch")
-
-	rootCmd.AddCommand(dispatcherCmd)
 }
