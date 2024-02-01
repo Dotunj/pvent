@@ -111,6 +111,4 @@ func init() {
 	dispatcherCmd.Flags().StringVar(&pType, "type", "", "Message Brokers Type (sqs, google, kafka)")
 	dispatcherCmd.Flags().IntVar(&rate, "rate", 1, "Number of events to send")
 	dispatcherCmd.Flags().StringVar(&target, "target", "", "Path to JSON payload to dispatch")
-
-	rootCmd.AddCommand(dispatcherCmd)
 }
