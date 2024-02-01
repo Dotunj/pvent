@@ -62,30 +62,6 @@ export GOOGLE_APPLICATION_CREDENTIALS="/Users/dotunj/Documents/certs/service.jso
 Usage: pvent <command> [command flags]
 
 dispatch command:
-  - access-key-id string
-        AWS Access Key ID
-  - secret-access-key string
-        AWS Secret Access Key
-  - region string
-        AWS Region
-  - queue-name
-        AWS Queue Name
-  - address
-        Kafka Cluster Address
-  - auth string
-        Kafka Auth Type (plain, scram)
-  - hash string
-        Kafka Auth Hash (SHA256, SHA512)
-  - ktopic string
-        Kafka Topic Name
-  - username string
-        Kafka Auth Username
-  - password string
-        Kafka Auth Password
-  - gtopic string
-        Google Pub/Sub Topic Name
-  - project-id string
-        Google Pub/Sub Project ID
   - type string
         Message Brokers Type (sqs, google, kafka)
   - rate int
@@ -93,7 +69,7 @@ dispatch command:
   - target string
         Path to JSON payload to dispatch
   - config
-       Path to Config file
+       Path to Pvent config file
 ```
 
 ### License
