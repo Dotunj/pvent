@@ -10,10 +10,9 @@ import (
 )
 
 var (
-	cfg                                                                     *config.Config
-	pType, cfgPath, accessKeyID, secretAccessKey, queueName, region, target string
-	projectID, gtopic, ktopic, address, authType, hash, username, password  string
-	rate                                                                    int
+	cfg                    *config.Config
+	pType, cfgPath, target string
+	rate                   int
 )
 
 var dispatcherCmd = &cobra.Command{
@@ -93,6 +92,10 @@ var dispatcherCmd = &cobra.Command{
 				Rate:    cfg.Rate,
 				Auth:    auth,
 			})
+
+			if err != nil {
+				return err
+			}
 		}
 
 		if dispatcher == nil {
@@ -106,18 +109,6 @@ var dispatcherCmd = &cobra.Command{
 func init() {
 	dispatcherCmd.Flags().StringVar(&cfgPath, "config", "./pvent.json", "Path to Config file")
 	dispatcherCmd.Flags().StringVar(&pType, "type", "", "Message Brokers Type (sqs, google, kafka)")
-	dispatcherCmd.Flags().StringVar(&accessKeyID, "access-key-id", "", "AWS Access Key ID")
-	dispatcherCmd.Flags().StringVar(&secretAccessKey, "secret-access-key", "", "AWS Secret Access Key")
-	dispatcherCmd.Flags().StringVar(&queueName, "queue-name", "", "AWS Queue Name")
-	dispatcherCmd.Flags().StringVar(&region, "region", "", "AWS Region")
-	dispatcherCmd.Flags().StringVar(&projectID, "project-id", "", "Pub/Sub Project ID")
-	dispatcherCmd.Flags().StringVar(&gtopic, "gtopic", "", "Pub/Sub Topic Name")
-	dispatcherCmd.Flags().StringVar(&ktopic, "ktopic", "", "Kafka Topic Name")
-	dispatcherCmd.Flags().StringVar(&address, "address", "", "Kafka Cluster Address")
-	dispatcherCmd.Flags().StringVar(&authType, "auth", "", "Kafka Auth Type")
-	dispatcherCmd.Flags().StringVar(&hash, "hash", "", "Kafka Auth Hash")
-	dispatcherCmd.Flags().StringVar(&username, "username", "", "Kafka Auth Username")
-	dispatcherCmd.Flags().StringVar(&password, "password", "", "Kafka Auth Password")
 	dispatcherCmd.Flags().IntVar(&rate, "rate", 1, "Number of events to send")
 	dispatcherCmd.Flags().StringVar(&target, "target", "", "Path to JSON payload to dispatch")
 
