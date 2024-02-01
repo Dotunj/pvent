@@ -63,7 +63,7 @@ Usage: pvent <command> [command flags]
 
 dispatch command:
   - type string
-        Message Brokers Type (sqs, google, kafka)
+        Message Brokers Type (sqs, google, kafka, rabbitmq)
   - rate int
         Total number of events to send
   - target string
