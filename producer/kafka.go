@@ -116,7 +116,7 @@ func getTransport(auth *KafkaAuth) (*kafka.Transport, error) {
 	return sharedTransport, nil
 }
 
-func (k *KafkaProducer) Broadcast() error {
+func (k *KafkaProducer) Broadcast() error { 
 	//before we broadcast, establish a connection to the cluster
 	if err := k.dial(); err != nil {
 		return err

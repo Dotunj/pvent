@@ -1,7 +1,7 @@
 ##  Pvent
 
 Pvent is a CLI tool for sending events across different message brokers. At the moment, only Google Pub/Sub,
-Kafka and Amazon SQS are supported.
+Kafka, Amazon SQS and RabbitMQ are supported.
 
 ### Installation
 To install Pvent using homebrew, you can run the following commands:
@@ -14,8 +14,7 @@ You can also check the [releases section](https://github.com/Dotunj/pvent/releas
 
 ### Getting Started
 
-To get started with using Pvent, you need to provide your message brokers credentials in a config file or via the CLI directly. Refer [here](https://github.com/Dotunj/pvent#cli-usage-manual) for the CLI usage manual and the 
-flags tied to the respective brokers.
+To get started with using Pvent, you need to provide your message brokers credentials in a config file.
 
 An example `pvent.json` config file looks like:
 
@@ -42,6 +41,10 @@ An example `pvent.json` config file looks like:
   "google": {
     "project_id": "<project-id>",
     "topic_name": "<topic-name>"
+  },
+  "rabbitmq": {
+    "dsn": "<dsn>",
+    "queue_name": "<queue-name>"
   }
 }
 ```
@@ -63,7 +66,7 @@ Usage: pvent <command> [command flags]
 
 dispatch command:
   - type string
-        Message Brokers Type (sqs, google, kafka)
+        Message Brokers Type (sqs, google, kafka, rabbitmq)
   - rate int
         Total number of events to send
   - target string
