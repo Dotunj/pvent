@@ -3,3 +3,4 @@ payload.json
 .idea/
 pvent
 dist/
+docker-compose.yml

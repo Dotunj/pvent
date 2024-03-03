@@ -11,27 +11,16 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type Exchange string
-
 type RabbitProducer struct {
-	channel  *amqp.Channel
-	queue    amqp.Queue
-	exchange string
-	// Payload message to send
-	payload []byte
-	// Number of messages to send
+	channel      *amqp.Channel
+	queue        amqp.Queue
+	exchange     string
+	payload      []byte
 	rate         int
 	wg           *sync.WaitGroup
 	errorCount   uint64
 	successCount uint64
 }
-
-const (
-	DIRECT  Exchange = "direct"
-	TOPIC   Exchange = "topic"
-	HEADERS Exchange = "headers"
-	FANOUT  Exchange = "fanout"
-)
 
 type RabbitConfig struct {
 	Rate      int
@@ -54,7 +43,7 @@ func NewRabbitMqProducer(cfg *RabbitConfig) (Producer, error) {
 		return nil, err
 	}
 
-	q, err := ch.QueueDeclare(cfg.QueueName, false, false, false, false, nil)
+	q, err := ch.QueueDeclare(cfg.QueueName, true, false, false, false, nil)
 	if err != nil {
 		fmt.Printf("failed to declare queue: %s", err)
 		return nil, err
@@ -84,8 +73,9 @@ func (r *RabbitProducer) Broadcast() error {
 }
 
 func (r *RabbitProducer) dispatch() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	defer r.wg.Done()
 
 	err := r.channel.PublishWithContext(
 		ctx,
